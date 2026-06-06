@@ -24,7 +24,7 @@ Reason: the storage contract depends on JSONB and Postgres timestamp behavior. A
 
 **Decision:** start with three sources:
 
-1. Census MPS / multifamily permits: `continuous` x `samples`.
+1. Census MPS / multifamily permits: `count` x `samples`.
 2. Polymarket or Manifold: `binary` / `nominal` x `pmf`.
 3. Jacob's ad-hoc forecasts: `continuous` x `samples`.
 

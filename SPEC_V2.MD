@@ -250,7 +250,7 @@ The first build should exercise the smallest useful matrix:
 
 | Source | Supports / kinds | Why |
 |---|---|---|
-| Census MPS | `continuous` x `samples` | Real workflow, familiar data |
+| Census MPS / MF permits | `count` x `samples` | Real workflow, familiar interval target |
 | Polymarket or Manifold | `binary` / `nominal` x `pmf` | Discrete probabilistic forecasts |
 | Jacob's ad-hoc forecasts | `continuous` x `samples` | Personal on-ramp |
 
