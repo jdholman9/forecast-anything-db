@@ -189,6 +189,12 @@ Reason: scoring is a later layer and should compute on demand.
 
 Reason: useful later for scoring semantics, but not needed for the atomic storage contract.
 
+### D9. Top-Level `target.period_start` / `target.period_end`
+
+**Decision:** replace with required `target.time_scope`.
+
+Reason: start/end alone do not say whether the target is a stock, a flow/window, or a datetime answer. `time_scope` makes that distinction explicit.
+
 ---
 
 ## Deferred

@@ -208,6 +208,7 @@ Deleted from v1:
 - Parametric storage as a distinct representation.
 - `target.geography`.
 - `target.condition` and the `Assumption` type.
+- `target.period_start` and `target.period_end` as top-level fields; replaced by required `target.time_scope`.
 - `forecast.provenance`.
 - `ResolutionRule.resolve_at`.
 - `ResolutionRule.preset` and `presets.py`.
