@@ -4,7 +4,7 @@ Supersedes V1. This is the public contract for the first build.
 
 The project is an atomic database layer for probabilistic forecasts. It stores:
 
-1. **Targets**: questions plus answer support, time scope, and resolution rules.
+1. **Targets**: questions plus forecast support, time scope, and resolution rules.
 2. **Forecasts**: dated probability distributions for targets.
 3. **Outcomes**: the one settling value for each target.
 
@@ -14,7 +14,7 @@ It does not store scoring results, entry windows, groups, estimates, vintages, s
 
 ## 0. One-Paragraph Version
 
-`forecast_anything` records probabilistic forecasts for arbitrary questions. A forecast is stored as particles: either uniform samples or an explicit PMF. A target defines what answer values are valid, what time the answer refers to, and how the question will resolve. An outcome records the settling truth. Everything else is a layer above the atom.
+`forecast_anything` records probabilistic forecasts for arbitrary questions. A forecast is stored as particles: either uniform samples or an explicit PMF. A target defines what forecast values are valid, what time the answer refers to, and how the question will resolve. An outcome records the settling truth. Everything else is a layer above the atom.
 
 ---
 
@@ -26,7 +26,7 @@ It does not store scoring results, entry windows, groups, estimates, vintages, s
 target {
   target_id
   question: str                  # required; unambiguous human-readable question
-  support: Support               # required; answer value shape
+  support: Support               # required; forecast value shape
   time_scope: TimeScope           # required; instant, interval, or datetime answer
   resolution: ResolutionRule     # required; frozen on first forecast
   created_at                     # UTC
@@ -131,7 +131,9 @@ Particle bags are stored inline in the `forecast.distribution` JSONB column for 
 
 ## 3. Support
 
-Support determines what a particle value is and which scores are valid later.
+Support determines what a forecast particle value is and which scores are valid later. It is the forecast value space, not always the physical outcome possibility set.
+
+An integer outcome can be scored against a continuous forecast. For example, a multifamily permit target may use `continuous` support if forecasts can contain fractional samples or point forecasts like `50.25`. Use `count` only when the stored forecast distribution itself should be integer-valued.
 
 | Type | Particle value | Validation |
 |---|---|---|
@@ -250,7 +252,7 @@ The first build should exercise the smallest useful matrix:
 
 | Source | Supports / kinds | Why |
 |---|---|---|
-| Census MPS / MF permits | `count` x `samples` | Real workflow, familiar interval target |
+| Census MPS / MF permits | `continuous` x `samples` | Real workflow, familiar interval target with fractional forecasts |
 | Polymarket or Manifold | `binary` / `nominal` x `pmf` | Discrete probabilistic forecasts |
 | Jacob's ad-hoc forecasts | `continuous` x `samples` | Personal on-ramp |
 

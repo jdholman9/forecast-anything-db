@@ -182,7 +182,7 @@ No scoring API in first pass unless the storage API is done and tested.
 
 Build these only after the core API is usable:
 
-- `sources/census_mps.py`: creates count interval targets and submits `samples`.
+- `sources/census_mps.py`: creates continuous interval targets and submits `samples`.
 - `sources/polymarket.py`: creates binary/nominal targets and submits `pmf`.
 
 Jacob's ad-hoc forecasts should use the public API, not a special source module.

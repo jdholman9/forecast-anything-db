@@ -24,7 +24,7 @@ Reason: the storage contract depends on JSONB and Postgres timestamp behavior. A
 
 **Decision:** start with three sources:
 
-1. Census MPS / multifamily permits: `count` x `samples`.
+1. Census MPS / multifamily permits: `continuous` x `samples`.
 2. Polymarket or Manifold: `binary` / `nominal` x `pmf`.
 3. Jacob's ad-hoc forecasts: `continuous` x `samples`.
 
@@ -106,6 +106,12 @@ Reason: PMF is point mass. It is not a density over continuous, bounded, datetim
 **Decision:** `target.support` is required. No default.
 
 Reason: continuous would be wrong too often.
+
+### Q14a. Support Means Forecast Value Space
+
+**Decision:** support describes valid forecast particle values, not necessarily the physical outcome possibility set.
+
+Reason: an integer outcome can be scored against a continuous forecast. A multifamily permit outcome is an integer, but a forecast value like `50.25` is meaningful and should be valid when the chosen support is `continuous`.
 
 ### Q15. Binary Values
 

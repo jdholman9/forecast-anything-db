@@ -10,7 +10,7 @@ A small, atomic-layer database for recording probabilistic forecasts of any ques
 
 Three ideas sit at the core:
 
-1. **Targets** - questions, plus answer support and resolution rules.
+1. **Targets** - questions, plus forecast support, time scope, and resolution rules.
 2. **Forecasts** - one dated distribution for a target, stored as particles.
 3. **Outcomes** - the one settling value for a target.
 
@@ -19,7 +19,7 @@ Forecasts are not estimates, vintages, or revised official data. Those are a fut
 To define a target, you supply exactly the non-negotiables:
 
 - The **question**.
-- The **support**: what kind of answer is valid.
+- The **support**: what kind of forecast value is valid.
 - The **time scope**: point-in-time, interval/window, or datetime answer.
 - The **resolution rule**: how the question will be settled, frozen once the first forecast lands.
 
@@ -39,6 +39,8 @@ Every forecast distribution is stored as particles. The particle shape depends o
 Quantile input is an ingest format, not a storage format. It must be converted into a sampled distribution before storage; three quantile markers are not three equiprobable samples. Raw quantile ingest requires at least a lower, central, and upper quantile plus a tail policy.
 
 ## Supports
+
+Support describes the stored forecast values, not necessarily every physically possible outcome. Count outcomes may still use continuous support when fractional forecast values are meaningful.
 
 | Support | Particle `value` is | Example question |
 |---|---|---|
