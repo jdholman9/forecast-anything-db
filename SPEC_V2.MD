@@ -136,7 +136,6 @@ Support {
   categories: list[str] | None     # nominal / ordinal
   bounds: tuple[float, float] | None # bounded; optional upper bound for count
   units: str | None
-  score_scale: "level" | "log" | None # future scoring scale hint; storage stays raw
   dims: list[Support] | None        # multivariate
 }
 ```
@@ -149,17 +148,17 @@ Multivariate support is schema-admitted but build-deferred. The Pydantic model m
 
 ## 4. Resolution Rule
 
-Resolution is stated before forecasts and frozen once the first forecast lands.
+The resolution description is stated before forecasts and frozen once the first forecast lands.
 
 ```python
 ResolutionRule {
-  description: str
-  source_id: str | None
-  locked_at: timestamp | None  # UTC; set on first forecast
+  description: str              # required; human-readable settlement rule
+  source_id: str | None         # optional; source named by the rule, if useful
+  locked_at: timestamp | None   # system metadata; null until first forecast
 }
 ```
 
-After `locked_at`, the resolution rule is immutable. Without this, scoring is not trustworthy.
+`locked_at` is not caller-supplied target metadata. It starts null and is set by the system when the first forecast lands. After that point, the rule fields are immutable. Without this, scoring is not trustworthy.
 
 Per-source canonical resolution rules live in the source ingest scripts, not in a registry. A `presets.py` module and `ResolutionRule.preset` field were deliberately cut because they duplicate source scripts and invite drift.
 
@@ -193,6 +192,7 @@ Deleted from v1:
 - `forecast.provenance`.
 - `ResolutionRule.resolve_at`.
 - `ResolutionRule.preset` and `presets.py`.
+- `Support.score_scale`.
 - Source table / FK.
 - Score cache.
 

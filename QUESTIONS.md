@@ -177,6 +177,12 @@ Reason: forecasts are complete and scorable against `outcome` alone. Vintage his
 
 Reason: scoring is a later layer and should compute on demand.
 
+### D8. `Support.score_scale`
+
+**Decision:** delete from v1.
+
+Reason: useful later for scoring semantics, but not needed for the atomic storage contract.
+
 ---
 
 ## Deferred
