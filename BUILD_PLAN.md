@@ -129,6 +129,16 @@ Quantile helpers must convert quantiles into a sampled distribution before writi
 
 Do not store quantile markers directly as uniform samples unless the caller explicitly asks for a discrete three-point forecast.
 
+Raw quantile ingest validation:
+
+- Require at least 3 quantile points.
+- Require probabilities strictly between 0 and 1.
+- Require probabilities strictly increasing and values non-decreasing.
+- Require at least one lower quantile `p <= 0.25`.
+- Require at least one central quantile `0.4 <= p <= 0.6`.
+- Require at least one upper quantile `p >= 0.75`.
+- Require declared/default tail policy outside the lowest and highest supplied p.
+
 Implementation can start with one simple helper:
 
 ```python

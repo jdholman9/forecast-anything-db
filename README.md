@@ -35,7 +35,7 @@ Every forecast distribution is stored as particles. The particle shape depends o
 
 `N` is natural to the data: a point is N=1, a 3-category PMF is N=3, and a sampled `Normal(mu, sigma)` ingests as N=2000 by default.
 
-Quantile input is an ingest format, not a storage format. It must be converted into a sampled distribution before storage; three quantile markers are not three equiprobable samples.
+Quantile input is an ingest format, not a storage format. It must be converted into a sampled distribution before storage; three quantile markers are not three equiprobable samples. Raw quantile ingest requires at least a lower, central, and upper quantile plus a tail policy.
 
 ## Supports
 

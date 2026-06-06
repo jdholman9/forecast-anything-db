@@ -93,7 +93,21 @@ There are two forecast kinds:
 
 Parametric formulas are not stored. They are ingest formats only. The stored row contains particles.
 
-Quantiles are also ingest formats, not storage formats. A 10/50/90 input must be converted into a sampled distribution before storage. Storing three quantile markers as three equiprobable samples is wrong unless the caller literally means a three-point discrete distribution.
+Quantiles are also ingest formats, not storage formats. A quantile forecast is viable only when it contains enough information to infer location, spread, and both tails under a documented tail policy.
+
+Minimum raw quantile ingest for v1:
+
+- At least 3 quantile points.
+- Probabilities strictly between 0 and 1.
+- Probabilities strictly increasing; values non-decreasing.
+- At least one lower quantile with `p <= 0.25`.
+- At least one central quantile with `0.4 <= p <= 0.6`.
+- At least one upper quantile with `p >= 0.75`.
+- Tail policy declared or defaulted for below the lowest p and above the highest p.
+
+`p10/p50/p90` qualifies. `p50` alone and `p15` alone do not. A single value forecast is still allowed, but it must be submitted as a point forecast, not as a one-quantile distribution.
+
+Fewer quantiles can work only when paired with an explicit parametric family, e.g. fitting a Normal from `p10/p90`. That is parametric-from-quantiles ingest, not raw quantile ingest.
 
 Particle bags are stored inline in the `forecast.distribution` JSONB column for v1. Soft performance cliff: around 10k particles per forecast. Above that, writes still work but reads will drag. A long `particle` table is a future migration, not v1 work.
 

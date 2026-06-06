@@ -81,9 +81,9 @@ Reason: good enough Monte Carlo precision without making JSONB rows silly. Targe
 
 ### Q11. Quantiles
 
-**Decision:** quantiles are an ingest format, not a storage format.
+**Decision:** quantiles are an ingest format, not a storage format. Minimum raw quantile ingest requires at least 3 points covering location, spread, and both tails: one lower quantile `p <= 0.25`, one central quantile `0.4 <= p <= 0.6`, one upper quantile `p >= 0.75`, with monotonic probabilities/values and a declared or default tail policy.
 
-Reason: storing 10/50/90 as three equiprobable samples is mathematically wrong. Quantile input must be converted into a sampled approximation before storage.
+Reason: storing 10/50/90 as three equiprobable samples is mathematically wrong. A single quantile like `p50` or `p15` is only a partial distribution constraint, not a full distribution. Quantile input must be converted into a sampled approximation before storage.
 
 ### Q12. Inline vs Long Particle Table
 
