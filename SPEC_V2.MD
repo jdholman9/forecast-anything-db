@@ -136,7 +136,7 @@ Support {
   categories: list[str] | None     # nominal / ordinal
   bounds: tuple[float, float] | None # bounded; optional upper bound for count
   units: str | None
-  transform: "level" | "log" | None # continuous/count/bounded scoring scale hint
+  score_scale: "level" | "log" | None # future scoring scale hint; storage stays raw
   dims: list[Support] | None        # multivariate
 }
 ```
