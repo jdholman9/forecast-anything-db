@@ -4,7 +4,7 @@ Supersedes V1. This is the public contract for the first build.
 
 The project is an atomic database layer for probabilistic forecasts. It stores:
 
-1. **Targets**: questions plus answer support and resolution rules.
+1. **Targets**: questions plus answer support, time scope, and resolution rules.
 2. **Forecasts**: dated probability distributions for targets.
 3. **Outcomes**: the one settling value for each target.
 
@@ -186,11 +186,14 @@ Atomic means: if you remove this field/table, is the forecast still complete and
 
 | Atomic in v1 | Layer above / not stored in atom |
 |---|---|
-| Target | Entry windows |
-| Forecast | Batches, groups, themes |
+| Target | Batches, groups, themes |
+| Forecast | Entry windows |
 | Outcome | Scoring results |
 | Support | Dashboards |
+| Time scope | Entry deadlines and forecast horizons |
 | Resolution rule | Alerts and scheduled runs |
+
+Entry windows are not time scopes. A time scope defines the target's subject: "Q3 permits" or "stock price at close." An entry window defines when forecasts are allowed or grouped: "forecast by June 30." The first is atomic; the second is workflow.
 
 Scoring is a layer, not a stored atom. Scores are functions over `(forecast.distribution, outcome.observed_value)`. When scoring is built, compute on demand. Do not store score rows or cache results in the atomic schema for v1.
 
@@ -250,7 +253,7 @@ The first build should exercise the smallest useful matrix:
 | Polymarket or Manifold | `binary` / `nominal` x `pmf` | Discrete probabilistic forecasts |
 | Jacob's ad-hoc forecasts | `continuous` x `samples` | Personal on-ramp |
 
-This is enough to test target creation, PMF validation, sampled parametric ingest, point forecasts, source filtering, outcome recording, and UTC timestamp behavior.
+This is enough to test target creation, time-scope validation, PMF validation, sampled parametric ingest, point forecasts, source filtering, outcome recording, and UTC timestamp behavior.
 
 ---
 
