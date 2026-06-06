@@ -131,6 +131,12 @@ Reason: ambiguous timestamps corrupt `as_of`, backfills, and outcome timing.
 
 Reason: `as_of` is semantic forecast time; `ingested_at` is audit/write time.
 
+### Q19. Target Time Scope
+
+**Decision:** `target.time_scope` is required. It is one of `instant`, `interval`, or `datetime_answer`.
+
+Reason: a target is not well-defined unless it says what time the answer refers to. Stock questions are measured at an instant, flow/count/event-window questions cover an interval, and some questions forecast a datetime as the answer itself.
+
 ---
 
 ## Deletions

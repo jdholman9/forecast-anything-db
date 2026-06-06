@@ -14,7 +14,7 @@ It does not store scoring results, entry windows, groups, estimates, vintages, s
 
 ## 0. One-Paragraph Version
 
-`forecast_anything` records probabilistic forecasts for arbitrary questions. A forecast is stored as particles: either uniform samples or an explicit PMF. A target defines what answer values are valid and how the question will resolve. An outcome records the settling truth. Everything else is a layer above the atom.
+`forecast_anything` records probabilistic forecasts for arbitrary questions. A forecast is stored as particles: either uniform samples or an explicit PMF. A target defines what answer values are valid, what time the answer refers to, and how the question will resolve. An outcome records the settling truth. Everything else is a layer above the atom.
 
 ---
 
@@ -27,13 +27,29 @@ target {
   target_id
   question: str                  # required; unambiguous human-readable question
   support: Support               # required; answer value shape
+  time_scope: TimeScope           # required; instant, interval, or datetime answer
   resolution: ResolutionRule     # required; frozen on first forecast
-  period_start, period_end       # optional; UTC; equal means an instant
   created_at                     # UTC
 }
 ```
 
-To create a target, the caller must provide `question`, `support`, and `resolution`. No default support. A default that is wrong half the time is worse than no default.
+To create a target, the caller must provide `question`, `support`, `time_scope`, and `resolution`. No default support or time scope. Defaults here are wrong too often.
+
+### Time Scope
+
+Every target must say what time its answer refers to:
+
+```python
+TimeScope {
+  kind: "instant" | "interval" | "datetime_answer"
+  start: timestamp | None       # UTC; required for instant / interval
+  end: timestamp | None         # UTC; required for interval
+}
+```
+
+Use `instant` for stock questions measured at a point in time: "What will the S&P 500 close at on 2026-12-31?" Use `interval` for flow, count, or event-window questions: "How many permits will be issued in Q3?" or "Will a recession begin before 2027?" Use `datetime_answer` when the forecasted value is itself a date: "When will the project ship?"
+
+For `instant`, `start` is the measurement instant and `end` is null. For `interval`, both `start` and `end` are required and `end` must be after `start`. For `datetime_answer`, `start` and `end` are null; the resolution rule defines how the final date is identified.
 
 ### Forecast
 

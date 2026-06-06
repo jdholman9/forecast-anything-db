@@ -20,6 +20,7 @@ To define a target, you supply exactly the non-negotiables:
 
 - The **question**.
 - The **support**: what kind of answer is valid.
+- The **time scope**: point-in-time, interval/window, or datetime answer.
 - The **resolution rule**: how the question will be settled, frozen once the first forecast lands.
 
 Everything else has a default.
@@ -49,6 +50,16 @@ Quantile input is an ingest format, not a storage format. It must be converted i
 | `bounded` | real number in strict `[lo, hi]` | "Vote share, 0-100%" |
 | `datetime` | UTC timestamp | "When does the project ship?" |
 | `multivariate` | vector | Schema admits it; ingest is deferred. |
+
+## Time Scopes
+
+Every target has one explicit time scope:
+
+| Scope | Used for | Example |
+|---|---|---|
+| `instant` | stock measured at a point in time | "S&P 500 close on 2026-12-31" |
+| `interval` | flow, count, or event window | "Permits issued in Q3" |
+| `datetime_answer` | the answer value is itself a date | "When will the project ship?" |
 
 ## Architecture
 

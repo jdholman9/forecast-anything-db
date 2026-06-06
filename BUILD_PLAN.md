@@ -67,9 +67,8 @@ PMF_WEIGHT_TOLERANCE = 0.01
 - `target_id` primary key.
 - `question` text, required.
 - `support` JSONB, required.
+- `time_scope` JSONB, required.
 - `resolution` JSONB, required.
-- `period_start` timestamptz nullable.
-- `period_end` timestamptz nullable.
 - `created_at` timestamptz required.
 
 ### `forecast`
@@ -116,6 +115,14 @@ Validate at the API/write path after fetching target support.
 | `datetime` | value must be UTC-aware datetime |
 | `multivariate` | raise `NotImplementedError` on ingest in v1 |
 
+### Time Scope Rules
+
+- `time_scope` is required for every target.
+- `kind="instant"` requires `start` and rejects `end`.
+- `kind="interval"` requires `start` and `end`; `end` must be after `start`.
+- `kind="datetime_answer"` rejects `start` and `end`; the forecast value is itself a datetime.
+- All supplied timestamps must be timezone-aware UTC.
+
 ### Kind Rules
 
 - `samples` is valid for all implemented supports.
@@ -153,7 +160,7 @@ def samples_from_quantiles(points: list[tuple[float, float]], n: int = 2000) -> 
 Minimum first pass:
 
 ```python
-create_target(question, support, resolution, *, period_start=None, period_end=None)
+create_target(question, support, time_scope, resolution)
 get_target(target_id)
 list_targets()
 
@@ -184,8 +191,9 @@ Jacob's ad-hoc forecasts should use the public API, not a special source module.
 
 ## Tests Required
 
-- Create target with required support/resolution.
+- Create target with required support/time_scope/resolution.
 - Reject missing support.
+- Reject missing or invalid time_scope.
 - Freeze resolution once first forecast lands.
 - Submit point forecast as `samples` N=1.
 - Submit parametric forecast sampled to N=2000 by default.
