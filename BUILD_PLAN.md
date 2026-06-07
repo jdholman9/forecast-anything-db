@@ -22,10 +22,10 @@ Implementation choices for the first code pass. `SPEC_V2.MD` is the public contr
 ## Package Layout
 
 ```text
-forecast-anything-v2/
+forecast-anything-db/
   pyproject.toml
   alembic/
-  forecast_anything_v2/
+  forecast_anything_db/
     __init__.py
     config.py
     db.py
