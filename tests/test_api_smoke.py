@@ -80,7 +80,51 @@ def test_pmf_kind_rejected_for_continuous():
         TimeScope(kind=TimeScopeKind.instant, start=datetime(2026, 12, 31, tzinfo=UTC)),
         {"description": "x"},
     )
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         api.submit_forecast(
             target_id, [{"value": 1, "weight": 1.0}], kind=ForecastKind.pmf
+        )
+
+
+def test_categorical_pmf_roundtrip():
+    target_id = api.create_target(
+        "smoke: which party wins?",
+        Support(type=SupportType.nominal, categories=["D", "R", "other"]),
+        TimeScope(kind=TimeScopeKind.instant, start=datetime(2026, 11, 3, tzinfo=UTC)),
+        {"description": "settles on the certified result"},
+    )
+    pmf = [
+        {"value": "D", "weight": 0.6},
+        {"value": "R", "weight": 0.35},
+        {"value": "other", "weight": 0.05},
+    ]
+    forecast_id = api.submit_forecast(target_id, pmf, kind=ForecastKind.pmf)
+    assert api.get_forecast(forecast_id).distribution == pmf
+
+
+def test_record_outcome_twice_raises_clean_error():
+    target_id = api.create_target(
+        "smoke: outcome uniqueness",
+        Support(type=SupportType.continuous),
+        TimeScope(kind=TimeScopeKind.instant, start=datetime(2026, 12, 31, tzinfo=UTC)),
+        {"description": "x"},
+    )
+    api.record_outcome(target_id, 1.0, observed_at=datetime.now(UTC))
+    # Second write must surface the clean domain error, not a raw IntegrityError.
+    with pytest.raises(ValueError, match="already has an outcome"):
+        api.record_outcome(target_id, 2.0, observed_at=datetime.now(UTC))
+
+
+def test_duplicate_forecast_raises_clean_error():
+    target_id = api.create_target(
+        "smoke: forecast uniqueness",
+        Support(type=SupportType.continuous),
+        TimeScope(kind=TimeScopeKind.instant, start=datetime(2026, 12, 31, tzinfo=UTC)),
+        {"description": "x"},
+    )
+    as_of = datetime(2026, 6, 1, tzinfo=UTC)
+    api.submit_forecast(target_id, [{"value": 1.0}], kind=ForecastKind.samples, as_of=as_of)
+    with pytest.raises(ValueError, match="already exists"):
+        api.submit_forecast(
+            target_id, [{"value": 2.0}], kind=ForecastKind.samples, as_of=as_of
         )

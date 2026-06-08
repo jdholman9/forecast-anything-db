@@ -1,8 +1,13 @@
-# Forecast Anything V2 - Decision Log
+# Forecast Anything - Decision Log
 
-`SPEC_V2.MD` is the source of truth. This file records the decisions that shaped it.
+This file records the design decisions behind the schema. The README is the
+built contract; [`SPEC_V2.MD`](./SPEC_V2.MD) is the forward-looking design.
 
-Status: all v1 build-shaping questions below are closed.
+Some decisions below describe features that are **deferred or relocated**: value
+*generation* now lives in producer code, not this package. `pmf` and the
+`nominal` / `ordinal` supports are now built; quantile ingest and the remaining
+supports (`binary`, `count`, `bounded`, `datetime`, `multivariate`) are
+schema-admitted but not yet built. See the README for what is implemented today.
 
 ---
 
@@ -10,7 +15,7 @@ Status: all v1 build-shaping questions below are closed.
 
 ### Q1. Language
 
-**Decision:** Python 3.12.
+**Decision:** Python 3.11+.
 
 Reason: distribution sampling, validation, and later scoring are Python-native work.
 

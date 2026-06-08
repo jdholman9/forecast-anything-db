@@ -1,19 +1,28 @@
 """Particle construction and validation.
 
-Particles are the only stored distribution form. Today the `samples` kind is
-supported: each particle is `{"value": <number>}` with uniform implied weight
-1/N. The db never *generates* values (no sampling, no parametric->particle
+Particles are the only stored distribution form. Two kinds:
+- `samples`: each particle is `{"value": <x>}` with uniform implied weight 1/N
+  (point forecasts, ensembles, Monte Carlo).
+- `pmf`: each particle is `{"value": <label>, "weight": <w>}` with explicit mass
+  summing to ~1, for discrete (categorical) supports.
+
+The db never *generates* values (no sampling, no parametric->particle
 conversion); callers hand it finished bags. These helpers only reshape an
-already-sampled bag and validate it. `pmf` ingest is deferred until discrete
-supports are added.
+already-sampled bag and validate it.
 """
 
 from __future__ import annotations
 
 from collections.abc import Iterable
 
-from .schemas import ForecastKind, Support
+from .config import PMF_WEIGHT_TOLERANCE
+from .schemas import ForecastKind, Support, SupportType
 from .support import validate_value
+
+# pmf is point mass over discrete categories, not a density.
+_PMF_SUPPORTS = frozenset(
+    {SupportType.binary, SupportType.nominal, SupportType.ordinal, SupportType.count}
+)
 
 
 def point_to_samples(value: float) -> list[dict]:
@@ -48,8 +57,29 @@ def validate_distribution(
         return
 
     if kind == ForecastKind.pmf:
-        raise NotImplementedError(
-            "pmf ingest is not implemented yet (samples only)"
-        )
+        if support.type not in _PMF_SUPPORTS:
+            raise ValueError(
+                f"pmf is not valid for {support.type.value} support "
+                "(discrete supports only: binary, nominal, ordinal, count)"
+            )
+        total = 0.0
+        for i, particle in enumerate(distribution):
+            if not isinstance(particle, dict) or set(particle) != {"value", "weight"}:
+                raise ValueError(
+                    f"pmf particle {i} must have exactly 'value' and 'weight' keys; "
+                    f"got {sorted(particle) if isinstance(particle, dict) else type(particle)}"
+                )
+            weight = particle["weight"]
+            if isinstance(weight, bool) or not isinstance(weight, (int, float)):
+                raise ValueError(f"pmf particle {i} weight must be a number; got {weight!r}")
+            if weight <= 0:
+                raise ValueError(f"pmf particle {i} weight must be positive; got {weight}")
+            validate_value(support, particle["value"])
+            total += weight
+        if abs(total - 1.0) > PMF_WEIGHT_TOLERANCE:
+            raise ValueError(
+                f"pmf weights must sum to ~1 (within {PMF_WEIGHT_TOLERANCE}); got {total}"
+            )
+        return
 
     raise ValueError(f"unknown forecast kind: {kind!r}")

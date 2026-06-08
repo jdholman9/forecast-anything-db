@@ -109,15 +109,16 @@ record_outcome(target_id, 122.4, observed_at=datetime.now(timezone.utc))
 ### Particles — the only stored form
 
 Every distribution is a list of **particles**: a flat bag of draws, no formulas.
-One kind is implemented today:
+Two kinds are implemented:
 
 | Kind | Particle | N | For |
 |---|---|---|---|
-| `samples` | `{"value": <number>}`, implied weight `1/N` | natural to the data | point forecasts (N=1), ensembles, Monte Carlo, sampled parametrics |
+| `samples` | `{"value": <x>}`, implied weight `1/N` | natural to the data | point forecasts (N=1), ensembles, Monte Carlo, sampled parametrics |
+| `pmf` | `{"value": <label>, "weight": <w>}`, weights sum to ~1 | one per category | explicit odds over a fixed category set (e.g. `D` 0.6 / `R` 0.35 / `other` 0.05) |
 
-A point forecast is just `samples` with N=1. A `pmf` kind (`{value, weight}` for
-discrete odds) exists in the schema but raises `NotImplementedError` until a
-discrete-support use shows up.
+A point forecast is just `samples` with N=1. A categorical point forecast is
+`samples` with a label value (`[{"value": "D"}]`). `pmf` is for discrete supports
+only — it's rejected for `continuous`.
 
 The database never builds particles for you. Your producer samples its model,
 wraps its error bag, or backs out a Normal, then hands the finished list to
@@ -126,10 +127,13 @@ wraps its error bag, or backs out a Normal, then hands the finished list to
 
 ### Support — what a valid answer looks like
 
-`continuous` is implemented end-to-end. The enum admits seven others — `binary`,
-`nominal`, `ordinal`, `count`, `bounded`, `datetime`, `multivariate` — so the
-schema is stable, but value validation for them raises `NotImplementedError`
-until a real use needs it. No half-built value space can be stored.
+`continuous`, `nominal`, and `ordinal` are implemented end-to-end. Nominal and
+ordinal validate a value against a fixed `categories` list (order only matters for
+scoring, which lives on top, so the two validate identically here). The enum
+admits five others — `binary`, `count`, `bounded`, `datetime`, `multivariate` —
+so the schema is stable, but value validation for them raises
+`NotImplementedError` until a real use needs it. No half-built value space can be
+stored.
 
 ### Time scope — what time the answer refers to
 
@@ -169,8 +173,8 @@ explicit delete-then-write, never a silent duplicate. An outcome row with
 
 | Built today | Deferred (schema-ready, raises `NotImplementedError`) |
 |---|---|
-| `continuous` support | `binary`, `nominal`, `ordinal`, `count`, `bounded`, `datetime`, `multivariate` |
-| `samples` kind | `pmf` kind |
+| `continuous`, `nominal`, `ordinal` support | `binary`, `count`, `bounded`, `datetime`, `multivariate` |
+| `samples` and `pmf` kinds | — |
 | target / forecast / outcome storage + write-path validation | — |
 
 Out of this repo entirely, by design: **generation** of forecast values,

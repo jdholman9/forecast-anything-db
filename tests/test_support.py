@@ -21,6 +21,22 @@ def test_continuous_rejects_bool_and_non_numbers():
         validate_value(s, None)
 
 
+def test_nominal_accepts_category_and_rejects_others():
+    s = Support(type=SupportType.nominal, categories=["D", "R", "other"])
+    validate_value(s, "D")
+    with pytest.raises(ValueError):
+        validate_value(s, "Green")  # not a declared category
+    with pytest.raises(ValueError):
+        validate_value(s, 1)  # not a label
+
+
+def test_ordinal_validates_like_nominal():
+    s = Support(type=SupportType.ordinal, categories=["low", "med", "high"])
+    validate_value(s, "high")
+    with pytest.raises(ValueError):
+        validate_value(s, "extreme")
+
+
 @pytest.mark.parametrize(
     "stype",
     [

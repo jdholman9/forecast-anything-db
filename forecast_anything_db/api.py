@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from . import particles
 from .config import DEFAULT_SOURCE_ID
@@ -87,7 +88,14 @@ def submit_forecast(
             distribution=distribution,
         )
         db.add(forecast)
-        db.commit()
+        try:
+            db.commit()
+        except IntegrityError as exc:
+            db.rollback()
+            raise ValueError(
+                f"a forecast for target {target_id} from source {source_id!r} at that "
+                "as_of already exists; delete it first to replace"
+            ) from exc
         db.refresh(forecast)
         return forecast.forecast_id
 
@@ -125,9 +133,6 @@ def record_outcome(
         target = db.get(Target, target_id)
         if target is None:
             raise ValueError(f"no target with id {target_id}")
-        existing = db.get(Outcome, target_id)
-        if existing is not None:
-            raise ValueError(f"target {target_id} already has an outcome")
         db.add(
             Outcome(
                 target_id=target_id,
@@ -135,7 +140,12 @@ def record_outcome(
                 observed_at=observed_at,
             )
         )
-        db.commit()
+        # One outcome per target: rely on the PK constraint, not a racy pre-check.
+        try:
+            db.commit()
+        except IntegrityError as exc:
+            db.rollback()
+            raise ValueError(f"target {target_id} already has an outcome") from exc
 
 
 def get_outcome(target_id: int) -> Outcome | None:
