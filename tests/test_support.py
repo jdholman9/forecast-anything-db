@@ -37,19 +37,38 @@ def test_ordinal_validates_like_nominal():
         validate_value(s, "extreme")
 
 
+def test_bounded_accepts_within_inclusive_range():
+    s = Support(type=SupportType.bounded, bounds=(0.0, 1.0))
+    validate_value(s, 0.0)  # lo endpoint is valid
+    validate_value(s, 1.0)  # hi endpoint is valid
+    validate_value(s, 0.42)
+
+
+def test_bounded_rejects_out_of_range():
+    s = Support(type=SupportType.bounded, bounds=(0.0, 1.0))
+    with pytest.raises(ValueError):
+        validate_value(s, -0.01)
+    with pytest.raises(ValueError):
+        validate_value(s, 1.5)
+
+
+def test_bounded_rejects_bool_and_non_numbers():
+    s = Support(type=SupportType.bounded, bounds=(0.0, 1.0))
+    with pytest.raises(ValueError):
+        validate_value(s, True)
+    with pytest.raises(ValueError):
+        validate_value(s, "0.5")
+
+
 @pytest.mark.parametrize(
     "stype",
     [
         SupportType.binary,
         SupportType.count,
-        SupportType.bounded,
         SupportType.datetime,
     ],
 )
 def test_unimplemented_supports_raise(stype):
-    kwargs = {"type": stype}
-    if stype == SupportType.bounded:
-        kwargs["bounds"] = (0.0, 1.0)
-    s = Support(**kwargs)
+    s = Support(type=stype)
     with pytest.raises(NotImplementedError):
         validate_value(s, 1)

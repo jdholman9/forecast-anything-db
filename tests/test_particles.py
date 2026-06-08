@@ -76,6 +76,14 @@ def test_pmf_rejected_for_continuous_support():
         particles.validate_distribution(CONT, ForecastKind.pmf, dist)
 
 
+def test_pmf_rejected_for_bounded_support():
+    # bounded is continuous-like, not a discrete category set, so pmf is invalid.
+    bounded = Support(type=SupportType.bounded, bounds=(0.0, 1.0))
+    dist = [{"value": 0.3, "weight": 1.0}]
+    with pytest.raises(ValueError):
+        particles.validate_distribution(bounded, ForecastKind.pmf, dist)
+
+
 def test_pmf_for_binary_is_deferred():
     binary = Support(type=SupportType.binary)
     dist = [{"value": 0, "weight": 0.5}, {"value": 1, "weight": 0.5}]

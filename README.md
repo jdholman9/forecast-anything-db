@@ -1,12 +1,16 @@
 # forecast-anything-db
 
-A tiny Postgres database for probabilistic forecasts. You hand it a finished
-distribution; it validates the shape, stores it, and hands it back. It never
-invents the numbers.
+A tiny Postgres database for forecasts of any shape — a single number, a
+category, or a full distribution. You hand it a finished forecast; it validates
+the shape, stores it, and hands it back. It never invents the numbers.
 
 ---
 
 ## Why store a distribution instead of a number?
+
+*A point forecast is still first-class — it's just a one-particle bag. This
+section is about why richer usually beats a bare number when you can manage it,
+not a requirement to provide one.*
 
 A point forecast — "120 thousand permits" — hides everything you don't know. The
 single number looks confident, but it throws away the part that actually matters
@@ -59,9 +63,11 @@ scoring layer on top can grade it later.
 - **Forecast** — one dated distribution for a target, stored as particles.
 - **Outcome** — the single value that settled the target.
 
-That's the whole atom. Scoring, revisions/vintages, dashboards, and entry windows
-are deliberately *not* here — they're layers built on top. The database validates
-and stores; it never generates a forecast value.
+That's the whole atom. Scoring, dashboards, and entry windows sit *on top*; value
+generation sits *upstream* in your producer; revision/vintage history sits
+*alongside*. None of them live here — the database only validates and stores, and
+never generates a forecast value. (See "What's built vs deferred" below for how
+those three relate to this repo.)
 
 ## Quickstart
 
@@ -127,13 +133,14 @@ wraps its error bag, or backs out a Normal, then hands the finished list to
 
 ### Support — what a valid answer looks like
 
-`continuous`, `nominal`, and `ordinal` are implemented end-to-end. Nominal and
-ordinal validate a value against a fixed `categories` list (order only matters for
-scoring, which lives on top, so the two validate identically here). The enum
-admits five others — `binary`, `count`, `bounded`, `datetime`, `multivariate` —
-so the schema is stable, but value validation for them raises
-`NotImplementedError` until a real use needs it. No half-built value space can be
-stored.
+`continuous`, `bounded`, `nominal`, and `ordinal` are implemented end-to-end.
+`bounded` is a real number constrained to an inclusive `[lo, hi]` range (a share
+in `[0, 1]`, a percentage in `[0, 100]`). Nominal and ordinal validate a value
+against a fixed `categories` list (order only matters for scoring, which lives on
+top, so the two validate identically here). The enum admits four others —
+`binary`, `count`, `datetime`, `multivariate` — so the schema is stable, but value
+validation for them raises `NotImplementedError` until a real use needs it. No
+half-built value space can be stored.
 
 ### Time scope — what time the answer refers to
 
@@ -173,13 +180,22 @@ explicit delete-then-write, never a silent duplicate. An outcome row with
 
 | Built today | Deferred (schema-ready, raises `NotImplementedError`) |
 |---|---|
-| `continuous`, `nominal`, `ordinal` support | `binary`, `count`, `bounded`, `datetime`, `multivariate` |
+| `continuous`, `bounded`, `nominal`, `ordinal` support | `binary`, `count`, `datetime`, `multivariate` |
 | `samples` and `pmf` kinds | — |
 | target / forecast / outcome storage + write-path validation | — |
 
-Out of this repo entirely, by design: **generation** of forecast values,
-**scoring** (CRPS / Brier / calibration), and **revision/vintage** history. Those
-are producers and layers built *on top* of this database.
+Three things are deliberately out of this repo, each in a different relationship
+to it:
+
+- **Generation** of forecast values lives *upstream*, in your producer code — the
+  database never invents a number, only validates and stores what you hand it.
+- **Scoring** (CRPS / Brier / calibration) is a layer *on top* — it reads stored
+  targets, forecasts, and outcomes and grades them; none of that needs to live in
+  the storage atom.
+- **Revision / vintage history** — the trail of how a metric's *measured* value
+  gets re-estimated over time (e.g. a statistic's first release vs. its later
+  revised releases) — is an *adjacent* concern. This repo records the single
+  value that settled a target, not the history of how that value was revised.
 
 ## Stack
 

@@ -1,8 +1,8 @@
 """Pydantic write-path contract: Support, TimeScope, ResolutionRule, kinds.
 
 Pure validation, no database. The Support enum *admits* all eight value spaces
-(forward-looking schema), but value-level validation for non-`continuous`
-supports is deferred (see support.py).
+(forward-looking schema), but value-level validation for some of them is deferred
+(see support.py).
 """
 
 from __future__ import annotations
