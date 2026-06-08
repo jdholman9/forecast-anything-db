@@ -1,11 +1,11 @@
 """Particle construction and validation.
 
-Particles are the only stored distribution form. Step 1 supports the `samples`
-kind: each particle is `{"value": <number>}` with uniform implied weight 1/N.
-The db never *generates* values (no sampling, no parametric->particle
+Particles are the only stored distribution form. Today the `samples` kind is
+supported: each particle is `{"value": <number>}` with uniform implied weight
+1/N. The db never *generates* values (no sampling, no parametric->particle
 conversion); callers hand it finished bags. These helpers only reshape an
-already-sampled bag and validate it. `pmf` ingest is deferred to the step that
-adds discrete supports.
+already-sampled bag and validate it. `pmf` ingest is deferred until discrete
+supports are added.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ def validate_distribution(
 
     if kind == ForecastKind.pmf:
         raise NotImplementedError(
-            "pmf ingest is not implemented in step 1 (samples only)"
+            "pmf ingest is not implemented yet (samples only)"
         )
 
     raise ValueError(f"unknown forecast kind: {kind!r}")

@@ -1,9 +1,9 @@
 """forecast_anything_db - atomic layer for probabilistic forecasts.
 
-Public surface: targets, forecasts, outcomes. Scoring is a layer above and is
-not part of v1. Step 1 implements `continuous` support and the `samples` kind
-end-to-end; other supports / the `pmf` kind raise NotImplementedError until a
-source needs them.
+Public surface: targets, forecasts, outcomes. Scoring is a layer above, not part
+of this package. Today it implements `continuous` support and the `samples` kind
+end-to-end; other supports and the `pmf` kind raise NotImplementedError until a
+real use needs them.
 """
 
 from .schemas import (

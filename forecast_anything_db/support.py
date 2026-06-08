@@ -1,8 +1,8 @@
 """Particle value validation against a target's support.
 
-Step 1 implements `continuous` only. Every other support raises
-NotImplementedError so a half-validated value space can never be stored. Each
-deferred branch is a one-function addition when its first source arrives.
+`continuous` is implemented; every other support raises NotImplementedError so a
+half-validated value space can never be stored. Each deferred branch is a
+one-function addition when its first real use arrives.
 """
 
 from __future__ import annotations
@@ -22,5 +22,5 @@ def validate_value(support: Support, value: object) -> None:
             raise ValueError(f"continuous support requires a real number; got {value!r}")
         return
     raise NotImplementedError(
-        f"support '{t.value}' is not implemented in step 1 (continuous only)"
+        f"support '{t.value}' is not implemented yet (continuous only)"
     )

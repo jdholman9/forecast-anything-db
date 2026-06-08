@@ -2,7 +2,7 @@
 
 Pure validation, no database. The Support enum *admits* all eight value spaces
 (forward-looking schema), but value-level validation for non-`continuous`
-supports is deferred to a later step (see support.py).
+supports is deferred (see support.py).
 """
 
 from __future__ import annotations

@@ -1,6 +1,13 @@
 # Forecast Anything - Specification V2
 
-Supersedes V1. This is the public contract for the first build.
+> **Status: forward-looking design, not the built reality.** This spec describes
+> the full intended contract (all supports, `pmf`/quantile ingest, first
+> sources). What is actually implemented today is narrower — `continuous`
+> support and the `samples` kind, with generation living in producers, not this
+> package. See the [README](./README.md) for what's built. Kept as the design
+> target the repo is growing toward.
+
+This is the public contract for the first build.
 
 The project is an atomic database layer for probabilistic forecasts. It stores:
 
